@@ -1,0 +1,4 @@
+<resources>
+  <string name="app_name">CameraRecorder</string>
+  <string name="app_record">Record Video</string>
+</resources>
