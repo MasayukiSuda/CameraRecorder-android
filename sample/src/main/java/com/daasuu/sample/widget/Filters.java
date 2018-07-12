@@ -66,6 +66,8 @@ public enum Filters {
                 return new GlLookUpTableFilter(BitmapFactory.decodeResource(context.getResources(), R.drawable.lookup_sample));
             case MONOCHROME:
                 return new GlMonochromeFilter();
+            case OVERLAY:
+                return new GlBitmapOverlaySample(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher_round));
             case SEPIA:
                 return new GlSepiaFilter();
             case SHARPEN:
