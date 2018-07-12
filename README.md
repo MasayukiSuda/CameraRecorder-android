@@ -5,3 +5,22 @@
 
 Video Recording with Camera2 and apply video filter.
 
+## Gradle
+```groovy
+  dependencies {
+    // jCenter
+    implementation 'com.daasuu:CameraRecorder-android:0.1.0'
+  }
+```
+
+## References And Special Thanks to
+* [AudioVideoRecordingSample](https://github.com/saki4510t/AudioVideoRecordingSample)
+* [android-gpuimage](https://github.com/CyberAgent/android-gpuimage)
+* [grafika](https://github.com/google/grafika)
+
+
+
+
+## License
+
+[MIT License](https://github.com/MasayukiSuda/CameraRecorder-android/blob/master/LICENSE)
