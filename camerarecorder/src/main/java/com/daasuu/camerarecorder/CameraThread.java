@@ -152,7 +152,9 @@ public class CameraThread extends Thread {
         }
         Looper.loop();
         Log.d(TAG, "Camera thread finish");
-        cameraRecordListener.onCameraThreadFinish();
+        if (cameraRecordListener != null) {
+            cameraRecordListener.onCameraThreadFinish();
+        }
         synchronized (readyFence) {
             handler = null;
             isRunning = false;

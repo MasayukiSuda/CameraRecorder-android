@@ -107,7 +107,9 @@ public class CameraRecorder {
                     }
 
                     flashSupport = flash;
-                    cameraRecordListener.onGetFlashSupport(flashSupport);
+                    if (cameraRecordListener != null) {
+                        cameraRecordListener.onGetFlashSupport(flashSupport);
+                    }
 
                     final float previewWidth = previewSize.getWidth();
                     final float previewHeight = previewSize.getHeight();
@@ -314,10 +316,12 @@ public class CameraRecorder {
     }
 
     private void notifyOnDone() {
+        if (cameraRecordListener == null) return;
         cameraRecordListener.onRecordComplete();
     }
 
     private void notifyOnError(Exception e) {
+        if (cameraRecordListener == null) return;
         cameraRecordListener.onError(e);
     }
 

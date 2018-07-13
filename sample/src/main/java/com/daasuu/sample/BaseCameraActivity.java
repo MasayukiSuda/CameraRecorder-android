@@ -172,38 +172,42 @@ public class BaseCameraActivity extends AppCompatActivity {
     private void setUpCamera() {
         setUpCameraView();
 
-        cameraRecorder = new CameraRecorderBuilder(this, new CameraRecordListener() {
-            @Override
-            public void onGetFlashSupport(boolean flashSupport) {
-
-            }
-
-            @Override
-            public void onRecordComplete() {
-                exportMp4ToGallery(getApplicationContext(), filepath);
-            }
-
-            @Override
-            public void onError(Exception exception) {
-
-            }
-
-            @Override
-            public void onCameraThreadFinish() {
-                if (toggleClick) {
-                    runOnUiThread(() -> {
-                        setUpCamera();
-                    });
-                }
-                toggleClick = false;
-            }
-        })
+        cameraRecorder = new CameraRecorderBuilder(this)
                 //.recordNoFilter(true)
+                .cameraRecordListener(new CameraRecordListener() {
+                    @Override
+                    public void onGetFlashSupport(boolean flashSupport) {
+                        runOnUiThread(() -> {
+                            findViewById(R.id.btn_flash).setEnabled(flashSupport);
+                        });
+                    }
+
+                    @Override
+                    public void onRecordComplete() {
+                        exportMp4ToGallery(getApplicationContext(), filepath);
+                    }
+
+                    @Override
+                    public void onError(Exception exception) {
+                        Log.e("CameraRecorder", exception.toString());
+                    }
+
+                    @Override
+                    public void onCameraThreadFinish() {
+                        if (toggleClick) {
+                            runOnUiThread(() -> {
+                                setUpCamera();
+                            });
+                        }
+                        toggleClick = false;
+                    }
+                })
                 .videoSize(videoWidth, videoHeight)
                 .cameraSize(cameraWidth, cameraHeight)
                 .preview(sampleGLView)
                 .lensFacing(lensFacing)
                 .build();
+
 
     }
 

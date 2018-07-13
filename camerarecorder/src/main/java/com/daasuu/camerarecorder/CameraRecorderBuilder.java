@@ -24,7 +24,7 @@ public class CameraRecorderBuilder {
     private LensFacing lensFacing = LensFacing.FRONT;
     private Resources resources;
     private Activity activity;
-    private final CameraRecordListener cameraRecordListener;
+    private CameraRecordListener cameraRecordListener;
     private int fileWidth = 720;
     private int fileHeight = 1280;
     private boolean flipVertical = false;
@@ -35,10 +35,14 @@ public class CameraRecorderBuilder {
     private int cameraHeight = 720;
     private GlFilter glFilter;
 
-    public CameraRecorderBuilder(@NonNull Activity activity, @NonNull CameraRecordListener cameraRecordListener) {
+    public CameraRecorderBuilder(@NonNull Activity activity) {
         this.activity = activity;
-        this.cameraRecordListener = cameraRecordListener;
         this.resources = activity.getResources();
+    }
+
+    public CameraRecorderBuilder cameraRecordListener(@NonNull CameraRecordListener cameraRecordListener) {
+        this.cameraRecordListener = cameraRecordListener;
+        return this;
     }
 
     public CameraRecorderBuilder filter(@NonNull GlFilter glFilter) {
