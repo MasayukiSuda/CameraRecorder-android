@@ -172,7 +172,7 @@ public class BaseCameraActivity extends AppCompatActivity {
     private void setUpCamera() {
         setUpCameraView();
 
-        cameraRecorder = new CameraRecorderBuilder(this)
+        cameraRecorder = new CameraRecorderBuilder(this, sampleGLView)
                 //.recordNoFilter(true)
                 .cameraRecordListener(new CameraRecordListener() {
                     @Override
@@ -204,7 +204,6 @@ public class BaseCameraActivity extends AppCompatActivity {
                 })
                 .videoSize(videoWidth, videoHeight)
                 .cameraSize(cameraWidth, cameraHeight)
-                .preview(sampleGLView)
                 .lensFacing(lensFacing)
                 .build();
 

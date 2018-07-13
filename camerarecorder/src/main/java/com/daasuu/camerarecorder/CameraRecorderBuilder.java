@@ -35,8 +35,9 @@ public class CameraRecorderBuilder {
     private int cameraHeight = 720;
     private GlFilter glFilter;
 
-    public CameraRecorderBuilder(@NonNull Activity activity) {
+    public CameraRecorderBuilder(@NonNull Activity activity, @NonNull GLSurfaceView glSurfaceView) {
         this.activity = activity;
+        this.glSurfaceView = glSurfaceView;
         this.resources = activity.getResources();
     }
 
@@ -47,11 +48,6 @@ public class CameraRecorderBuilder {
 
     public CameraRecorderBuilder filter(@NonNull GlFilter glFilter) {
         this.glFilter = glFilter;
-        return this;
-    }
-
-    public CameraRecorderBuilder preview(@NonNull GLSurfaceView glSurfaceView) {
-        this.glSurfaceView = glSurfaceView;
         return this;
     }
 
