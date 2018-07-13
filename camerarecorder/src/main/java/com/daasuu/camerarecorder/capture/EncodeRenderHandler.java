@@ -93,9 +93,6 @@ public class EncodeRenderHandler implements Runnable {
     ) {
 
 
-        // エンコードのみここがScaleになる。
-        // fileAspectとcameraAspectが同じだった場合
-        //
         this.fileWidth = fileWidth;
         this.fileHeight = fileHeight;
         this.recordNoFilter = recordNoFilter;
@@ -110,9 +107,9 @@ public class EncodeRenderHandler implements Runnable {
                 YMatrixScale = (flipVertical ? -1 : 1) * (viewAspect / fileAspect);
                 Log.v(TAG, "cameraAspect: " + viewAspect + " YMatrixScale :" + YMatrixScale);
             } else {
-
                 XMatrixScale = (flipHorizontal ? -1 : 1) * (fileAspect / viewAspect);
-                YMatrixScale = flipVertical ? -1 : 1;
+                YMatrixScale = (flipVertical ? -1 : 1);
+                Log.v(TAG, "cameraAspect: " + viewAspect + " YMatrixScale :" + YMatrixScale + " XMatrixScale :" + XMatrixScale);
             }
         }
 
