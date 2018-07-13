@@ -51,6 +51,7 @@ public class BaseCameraActivity extends AppCompatActivity {
     protected int videoWidth = 720;
     protected int videoHeight = 720;
     private AlertDialog filterDialog;
+    private boolean toggleClick = false;
 
     protected void onCreateActivity() {
         getSupportActionBar().hide();
@@ -81,9 +82,7 @@ public class BaseCameraActivity extends AppCompatActivity {
             } else {
                 lensFacing = LensFacing.BACK;
             }
-            new Handler().postDelayed(() -> {
-                setUpCamera();
-            }, 1000);
+            toggleClick = true;
         });
 
         findViewById(R.id.btn_filter).setOnClickListener(v -> {
@@ -128,17 +127,13 @@ public class BaseCameraActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        doOnResume();
+        setUpCamera();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         releaseCamera();
-    }
-
-    protected void doOnResume() {
-        setUpCamera();
     }
 
     private void releaseCamera() {
@@ -159,13 +154,23 @@ public class BaseCameraActivity extends AppCompatActivity {
     }
 
 
-    private void setUpCamera() {
-
-        sampleGLView = new SampleGLView(getApplicationContext());
-        sampleGLView.setTouchListener((event, width, height) -> {
-            cameraRecorder.changeManualFocusPoint(event.getX(), event.getY(), width, height);
+    private void setUpCameraView() {
+        runOnUiThread(() -> {
+            FrameLayout frameLayout = findViewById(R.id.wrap_view);
+            frameLayout.removeAllViews();
+            sampleGLView = null;
+            sampleGLView = new SampleGLView(getApplicationContext());
+            sampleGLView.setTouchListener((event, width, height) -> {
+                if (cameraRecorder == null) return;
+                cameraRecorder.changeManualFocusPoint(event.getX(), event.getY(), width, height);
+            });
+            frameLayout.addView(sampleGLView);
         });
-        ((FrameLayout) findViewById(R.id.wrap_view)).addView(sampleGLView, 0);
+    }
+
+
+    private void setUpCamera() {
+        setUpCameraView();
 
         cameraRecorder = new CameraRecorderBuilder(this, new CameraRecordListener() {
             @Override
@@ -185,7 +190,12 @@ public class BaseCameraActivity extends AppCompatActivity {
 
             @Override
             public void onCameraThreadFinish() {
-
+                if (toggleClick) {
+                    runOnUiThread(() -> {
+                        setUpCamera();
+                    });
+                }
+                toggleClick = false;
             }
         })
                 //.recordNoFilter(true)
@@ -194,7 +204,6 @@ public class BaseCameraActivity extends AppCompatActivity {
                 .preview(sampleGLView)
                 .lensFacing(lensFacing)
                 .build();
-
 
     }
 
