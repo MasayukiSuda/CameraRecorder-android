@@ -58,10 +58,18 @@ Other methods.
   cameraRecorder.setGestureScale(float scale);
 ```
 
-
-
-
-
+## Builder Method
+| method | description |
+|:---|:---|
+| cameraRecordListener |  |
+| filter |  |
+| videoSize |  |
+| cameraSize |  |
+| lensFacing | Select back or front camera. Default `LensFacing.FRONT`.  |
+| flipHorizontal | Flip Horizontal on recorded video. Default `flipHorizontal = false`. |
+| flipVertical | Flip Vertical on recorded video. Default `flipVertical = false`. |
+| mute | Mute audio track on recorded video. Default `mute = false`. |
+| recordNoFilter |  |
 
 
 ## References And Special Thanks to
