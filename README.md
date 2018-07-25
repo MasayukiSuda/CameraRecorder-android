@@ -71,7 +71,7 @@ Other methods.
 | flipHorizontal | Flip Horizontal on recorded video. Default `flipHorizontal = false`. |
 | flipVertical | Flip Vertical on recorded video. Default `flipVertical = false`. |
 | mute | Mute audio track on recorded video. Default `mute = false`. |
-| recordNoFilter |  |
+| recordNoFilter | No Filter on recorded video although preview apply a filter. Default `recordNoFilter = false`. |
 
 
 ## References And Special Thanks to
