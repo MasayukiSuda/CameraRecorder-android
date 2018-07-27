@@ -15,8 +15,8 @@ public class GlBitmapOverlaySample extends GlOverlayFilter {
 
     @Override
     protected void drawCanvas(Canvas canvas) {
-
-        canvas.drawBitmap(bitmap, 0, 0, null);
-
+        if (bitmap != null && !bitmap.isRecycled()) {
+            canvas.drawBitmap(bitmap, 0, 0, null);
+        }
     }
 }
