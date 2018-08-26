@@ -26,14 +26,24 @@ public abstract class GlOverlayFilter extends GlFilter {
 
     private final static String FRAGMENT_SHADER =
             "precision mediump float;\n" +
-                    "varying vec2 vTextureCoord;\n" +
+                    "varying highp vec2 vTextureCoord;\n" +
                     "uniform lowp sampler2D sTexture;\n" +
                     "uniform lowp sampler2D oTexture;\n" +
                     "void main() {\n" +
-                    "   lowp vec4 textureColor = texture2D(sTexture, vTextureCoord);\n" +
-                    "   lowp vec4 textureColor2 = texture2D(oTexture, vTextureCoord);\n" +
-                    "   \n" +
-                    "   gl_FragColor = mix(textureColor, textureColor2, textureColor2.a);\n" +
+                    "     lowp vec4 c2 = texture2D(sTexture, vTextureCoord);\n" +
+                    "     lowp vec4 c1 = texture2D(oTexture, vTextureCoord);\n" +
+                    "     \n" +
+                    "     lowp vec4 outputColor;\n" +
+                    "     \n" +
+                    "     outputColor.r = c1.r + c2.r * c2.a * (1.0 - c1.a);\n" +
+                    "\n" +
+                    "     outputColor.g = c1.g + c2.g * c2.a * (1.0 - c1.a);\n" +
+                    "     \n" +
+                    "     outputColor.b = c1.b + c2.b * c2.a * (1.0 - c1.a);\n" +
+                    "     \n" +
+                    "     outputColor.a = c1.a + c2.a * (1.0 - c1.a);\n" +
+                    "     \n" +
+                    "     gl_FragColor = outputColor;\n" +
                     "}\n";
 
     public void setResolution(Size resolution) {
