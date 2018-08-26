@@ -2,15 +2,15 @@ package com.daasuu.camerarecorder;
 
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraManager;
+import android.media.MediaCodec;
+import android.media.MediaRecorder;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.util.Log;
 import android.util.Size;
+import android.view.Surface;
 
-import com.daasuu.camerarecorder.capture.MediaAudioEncoder;
-import com.daasuu.camerarecorder.capture.MediaEncoder;
-import com.daasuu.camerarecorder.capture.MediaMuxerCaptureWrapper;
-import com.daasuu.camerarecorder.capture.MediaVideoEncoder;
+import com.daasuu.camerarecorder.capture.EncodeRenderHandler;
 import com.daasuu.camerarecorder.egl.GlPreviewRenderer;
 import com.daasuu.camerarecorder.egl.filter.GlFilter;
 
@@ -30,7 +30,10 @@ public class CameraRecorder {
 
     private boolean flashSupport = false;
 
-    private MediaMuxerCaptureWrapper muxer;
+    //    private MediaMuxerCaptureWrapper muxer;
+    private MediaRecorder mediaRecorder;
+    private EncodeRenderHandler encodeRenderHandler;
+
     private final int fileWidth;
     private final int fileHeight;
 
@@ -44,6 +47,8 @@ public class CameraRecorder {
     private final boolean isLandscapeDevice;
     private final int degrees;
     private final boolean recordNoFilter;
+    private String filepath;
+    private Surface recordSurface;
 
     CameraRecorder(
             CameraRecordListener cameraRecordListener,
@@ -59,7 +64,8 @@ public class CameraRecorder {
             final CameraManager cameraManager,
             final boolean isLandscapeDevice,
             final int degrees,
-            final boolean recordNoFilter
+            final boolean recordNoFilter,
+            String filePath
     ) {
 
 
@@ -81,6 +87,7 @@ public class CameraRecorder {
         this.degrees = degrees;
         this.recordNoFilter = recordNoFilter;
 
+        this.filepath = filePath;
         // create preview Renderer
         if (null == glPreviewRenderer) {
             glPreviewRenderer = new GlPreviewRenderer(glSurfaceView);
@@ -92,10 +99,11 @@ public class CameraRecorder {
                 startPreview(surfaceTexture);
             }
         });
+        setUpRecorder();
     }
 
 
-    private synchronized void startPreview(SurfaceTexture surfaceTexture) {
+    private synchronized void startPreview(final SurfaceTexture surfaceTexture) {
         if (cameraHandler == null) {
             final CameraThread thread = new CameraThread(cameraRecordListener, new CameraThread.OnStartPreviewListener() {
                 @Override
@@ -134,12 +142,16 @@ public class CameraRecorder {
             cameraHandler = thread.getHandler();
         }
         cameraHandler.startPreview(cameraWidth, cameraHeight);
+        setUpRecorder();
     }
 
 
     public void setFilter(final GlFilter filter) {
         if (filter == null) return;
         glPreviewRenderer.setGlFilter(filter);
+        releaseMediaRecorder();
+        releaseRecordHandler();
+        setUpRecorder();
     }
 
     /**
@@ -171,6 +183,11 @@ public class CameraRecorder {
         }
     }
 
+    public void setFilepath(String filepath) {
+        this.filepath = filepath;
+        setUpRecorder();
+    }
+
     public boolean isFlashSupport() {
         return flashSupport;
     }
@@ -187,70 +204,107 @@ public class CameraRecorder {
         }
     }
 
-    /**
-     * callback methods from encoder
-     */
-    private final MediaEncoder.MediaEncoderListener mediaEncoderListener = new MediaEncoder.MediaEncoderListener() {
-        @Override
-        public void onPrepared(final MediaEncoder encoder) {
-            Log.v("TAG", "onPrepared:encoder=" + encoder);
-            if (encoder instanceof MediaVideoEncoder) {
-                glPreviewRenderer.setVideoEncoder((MediaVideoEncoder) encoder);
+    private void setUpMediaRecorder(Surface surface) {
+        try {
+            mediaRecorder = new MediaRecorder();
+
+            mediaRecorder.setOnInfoListener(null);
+
+            mediaRecorder.setOnErrorListener(null);
+
+            mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+            if (!mute) {
+                mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            }
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            if (!mute) {
+                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                mediaRecorder.setAudioSamplingRate(44100);
+                mediaRecorder.setAudioEncodingBitRate(96000);
             }
 
-        }
+            mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
 
-        @Override
-        public void onStopped(final MediaEncoder encoder) {
-            Log.v("TAG", "onStopped:encoder=" + encoder);
-            if (encoder instanceof MediaVideoEncoder) {
-                glPreviewRenderer.setVideoEncoder(null);
+            mediaRecorder.setVideoEncodingBitRate(12000000);
+            mediaRecorder.setVideoFrameRate(30);
+            mediaRecorder.setVideoSize(fileWidth, fileHeight);
+            mediaRecorder.setOutputFile(filepath);
+            mediaRecorder.setInputSurface(surface);
+            mediaRecorder.prepare();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setUpRecorder() {
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+
+                recordSurface = MediaCodec.createPersistentInputSurface();
+                setUpMediaRecorder(recordSurface);
+
+                float viewWidth = glSurfaceView.getMeasuredWidth();
+                float viewHeight = glSurfaceView.getMeasuredHeight();
+                encodeRenderHandler = EncodeRenderHandler.createHandler(
+                        TAG,
+                        flipVertical,
+                        flipHorizontal,
+                        (viewWidth > viewHeight) ? (viewWidth / viewHeight) : (viewHeight / viewWidth),
+                        fileWidth,
+                        fileHeight,
+                        recordNoFilter,
+                        glPreviewRenderer.getFilter()
+                );
+
+                glPreviewRenderer.setEncodeRenderHandler(encodeRenderHandler, recordSurface);
+            }
+        });
+    }
+
+
+    private void releaseMediaRecorder() {
+        if (mediaRecorder != null) {
+            try {
+                mediaRecorder.release();
+                mediaRecorder = null;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-    };
+    }
+
+    private void releaseRecordHandler() {
+        if (encodeRenderHandler != null) {
+            encodeRenderHandler.release();
+            encodeRenderHandler = null;
+            glPreviewRenderer.setEncodeRenderHandler(null, null);
+        }
+        if (recordSurface != null) {
+            recordSurface.release();
+            recordSurface = null;
+        }
+    }
 
     /**
      * Start data processing
      */
-    public void start(final String filePath) {
+    public void start() {
         if (started) return;
-
-
+        if (filepath == null) {
+            throw new NullPointerException("nothing output file path");
+        }
         new Handler().post(new Runnable() {
             @Override
             public void run() {
                 try {
-                    muxer = new MediaMuxerCaptureWrapper(filePath);
-
-                    // for video capturing
-                    // ここにcamera width , heightもわたす。
-                    // 差分をいろいろと吸収する。
-                    new MediaVideoEncoder(
-                            muxer,
-                            mediaEncoderListener,
-                            fileWidth,
-                            fileHeight,
-                            flipHorizontal,
-                            flipVertical,
-                            glSurfaceView.getMeasuredWidth(),
-                            glSurfaceView.getMeasuredHeight(),
-                            recordNoFilter,
-                            glPreviewRenderer.getFilter()
-                    );
-                    if (!mute) {
-                        // for audio capturing
-                        new MediaAudioEncoder(muxer, mediaEncoderListener);
-                    }
-                    muxer.prepare();
-                    muxer.startRecording();
-
+                    mediaRecorder.start();
                 } catch (Exception e) {
                     notifyOnError(e);
+                    releaseMediaRecorder();
                 }
-
             }
         });
-
         started = true;
     }
 
@@ -259,54 +313,33 @@ public class CameraRecorder {
      */
     public void stop() {
         if (!started) return;
+        glPreviewRenderer.setEncodeRenderHandler(null, null);
         try {
-
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    // stop recording and release camera
-                    try {
-                        // stop the recording
-                        if (muxer != null) {
-                            muxer.stopRecording();
-                            muxer = null;
-                            //  you should not wait here
-                        }
-                    } catch (Exception e) {
-                        // RuntimeException is thrown when stop() is called immediately after start().
-                        // In this case the output file is not properly constructed ans should be deleted.
-                        Log.d("TAG", "RuntimeException: stop() is called immediately after start()");
-                        //noinspection ResultOfMethodCallIgnored
-                        notifyOnError(e);
-                    }
-
-                    notifyOnDone();
-                }
-            });
-
+            mediaRecorder.stop();
         } catch (Exception e) {
             notifyOnError(e);
             e.printStackTrace();
+        } finally {
+            releaseMediaRecorder();
+            releaseRecordHandler();
+            this.filepath = null;
         }
-
-
+        notifyOnDone();
         started = false;
     }
 
     public void release() {
         // destroy everithing
         try {
-            // stop the recording
-            if (muxer != null) {
-                muxer.stopRecording();
-                muxer = null;
+            if (recordSurface != null) {
+                recordSurface.release();
             }
+            releaseMediaRecorder();
         } catch (Exception e) {
             // RuntimeException is thrown when stop() is called immediately after start().
             // In this case the output file is not properly constructed ans should be deleted.
             Log.d("TAG", "RuntimeException: stop() is called immediately after start()");
         }
-
         destroyPreview();
     }
 

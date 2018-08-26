@@ -12,6 +12,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -59,12 +60,13 @@ public class BaseCameraActivity extends AppCompatActivity {
         recordBtn.setOnClickListener(v -> {
 
             if (recordBtn.getText().equals(getString(R.string.app_record))) {
-                filepath = getVideoFilePath();
-                cameraRecorder.start(filepath);
+                cameraRecorder.start();
+                findViewById(R.id.btn_filter).setVisibility(View.GONE);
                 recordBtn.setText("Stop");
             } else {
                 cameraRecorder.stop();
                 recordBtn.setText(getString(R.string.app_record));
+                findViewById(R.id.btn_filter).setVisibility(View.VISIBLE);
             }
 
         });
@@ -171,7 +173,7 @@ public class BaseCameraActivity extends AppCompatActivity {
 
     private void setUpCamera() {
         setUpCameraView();
-
+        filepath = getVideoFilePath();
         cameraRecorder = new CameraRecorderBuilder(this, sampleGLView)
                 //.recordNoFilter(true)
                 .cameraRecordListener(new CameraRecordListener() {
@@ -184,7 +186,11 @@ public class BaseCameraActivity extends AppCompatActivity {
 
                     @Override
                     public void onRecordComplete() {
-                        exportMp4ToGallery(getApplicationContext(), filepath);
+                        new Handler().post(() -> {
+                            exportMp4ToGallery(getApplicationContext(), filepath);
+                            filepath = getVideoFilePath();
+                            cameraRecorder.setFilepath(filepath);
+                        });
                     }
 
                     @Override
@@ -205,6 +211,9 @@ public class BaseCameraActivity extends AppCompatActivity {
                 .videoSize(videoWidth, videoHeight)
                 .cameraSize(cameraWidth, cameraHeight)
                 .lensFacing(lensFacing)
+                .filePath(filepath)
+                .mute(false)
+                .recordNoFilter(false)
                 .build();
 
 

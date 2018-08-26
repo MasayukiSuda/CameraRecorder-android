@@ -49,14 +49,14 @@ public class EncodeRenderHandler implements Runnable {
     private GlFilter normalFilter;
     private GlFilter glFilter;
 
-    static EncodeRenderHandler createHandler(final String name,
-                                             final boolean flipVertical,
-                                             final boolean flipHorizontal,
-                                             final float viewAspect,
-                                             final float fileWidth,
-                                             final float fileHeight,
-                                             final boolean recordNoFilter,
-                                             final GlFilter filter
+    public static EncodeRenderHandler createHandler(final String name,
+                                                    final boolean flipVertical,
+                                                    final boolean flipHorizontal,
+                                                    final float viewAspect,
+                                                    final float fileWidth,
+                                                    final float fileHeight,
+                                                    final boolean recordNoFilter,
+                                                    final GlFilter filter
     ) {
         Log.v(TAG, "createHandler:");
         Log.v(TAG, "fileAspect:" + (fileHeight / fileWidth) + " viewAcpect: " + viewAspect);
@@ -115,14 +115,14 @@ public class EncodeRenderHandler implements Runnable {
 
     }
 
-    final void setEglContext(final EGLContext shared_context, final int tex_id, final Object surface) {
+    public final void setEglContext(final EGLContext argSharedContext, final int tex_id, final Object surface) {
         Log.i(TAG, "setEglContext:");
         if (!(surface instanceof Surface) && !(surface instanceof SurfaceTexture) && !(surface instanceof SurfaceHolder)) {
             throw new RuntimeException("unsupported window type:" + surface);
         }
         synchronized (sync) {
             if (requestRelease) return;
-            sharedContext = shared_context;
+            sharedContext = argSharedContext;
             texId = tex_id;
             this.surface = surface;
             this.isRecordable = true;
@@ -134,16 +134,6 @@ public class EncodeRenderHandler implements Runnable {
             }
         }
     }
-
-
-    final void prepareDraw() {
-        synchronized (sync) {
-            if (requestRelease) return;
-            requestDraw++;
-            sync.notifyAll();
-        }
-    }
-
 
     public final void draw(final int tex_id, final float[] texMatrix, final float[] mvpMatrix, final float aspectRatio) {
         synchronized (sync) {
@@ -169,6 +159,7 @@ public class EncodeRenderHandler implements Runnable {
         synchronized (sync) {
             if (requestRelease) return;
             requestRelease = true;
+            requestDraw = 0;
             sync.notifyAll();
             try {
                 sync.wait();
@@ -219,9 +210,8 @@ public class EncodeRenderHandler implements Runnable {
 
                     previewShader.draw(texId, MVPMatrix, STMatrix, aspectRatio);
 
-                    if (isRecordFilter()) {
+                    if (isRecordFilter() && glFilter.isSetup()) {
                         framebufferObject.enable();
-                        //GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
                         glFilter.draw(filterFramebufferObject.getTexName(), framebufferObject);
 
                         GLES20.glBindFramebuffer(GL_FRAMEBUFFER, 0);

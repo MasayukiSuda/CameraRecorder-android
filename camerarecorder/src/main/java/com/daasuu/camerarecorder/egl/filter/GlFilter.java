@@ -71,6 +71,7 @@ public class GlFilter {
     private int fragmentShader;
 
     private int vertexBufferName;
+    private boolean isSetup = false;
 
     private final HashMap<String, Integer> handleMap = new HashMap<String, Integer>();
 
@@ -98,12 +99,16 @@ public class GlFilter {
         getHandle("aPosition");
         getHandle("aTextureCoord");
         getHandle("sTexture");
+        isSetup = true;
     }
 
     public void setFragmentShaderSource(String fragmentShaderSource) {
         this.fragmentShaderSource = fragmentShaderSource;
     }
 
+    public boolean isSetup() {
+        return isSetup;
+    }
 
     public void setFrameSize(final int width, final int height) {
         // do nothing
@@ -121,6 +126,7 @@ public class GlFilter {
         vertexBufferName = 0;
 
         handleMap.clear();
+        isSetup = false;
     }
 
     //  リセットは行っていない。

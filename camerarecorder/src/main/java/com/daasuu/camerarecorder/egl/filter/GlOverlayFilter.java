@@ -16,6 +16,7 @@ public abstract class GlOverlayFilter extends GlFilter {
     private int[] textures = new int[1];
 
     private Bitmap bitmap = null;
+    private final int eraseColor = Color.argb(0, 0, 0, 0);
 
     protected Size inputResolution = new Size(1280, 720);
 
@@ -73,7 +74,7 @@ public abstract class GlOverlayFilter extends GlFilter {
             createBitmap();
         }
 
-        bitmap.eraseColor(Color.argb(0, 0, 0, 0));
+        bitmap.eraseColor(eraseColor);
         Canvas bitmapCanvas = new Canvas(bitmap);
         bitmapCanvas.scale(1, -1, bitmapCanvas.getWidth() / 2, bitmapCanvas.getHeight() / 2);
         drawCanvas(bitmapCanvas);

@@ -6,9 +6,10 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Handler;
+import android.view.Surface;
 
 import com.daasuu.camerarecorder.Resolution;
-import com.daasuu.camerarecorder.capture.MediaVideoEncoder;
+import com.daasuu.camerarecorder.capture.EncodeRenderHandler;
 import com.daasuu.camerarecorder.egl.filter.GlFilter;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -60,7 +61,7 @@ public class GlPreviewRenderer extends GlFrameBufferObjectRenderer implements Su
     private int updateTexImageCompare = 0;
 
     private SurfaceCreateListener surfaceCreateListener;
-    private MediaVideoEncoder videoEncoder;
+    private EncodeRenderHandler encodeRenderHandler;
 
 
     public GlPreviewRenderer(GLSurfaceView glView) {
@@ -132,6 +133,9 @@ public class GlPreviewRenderer extends GlFrameBufferObjectRenderer implements Su
                 glFilter = filter;
                 isNewShader = true;
                 glView.requestRender();
+                if (encodeRenderHandler != null) {
+                    //encodeRenderHandler.setGlFilter(filter);
+                }
             }
         });
     }
@@ -256,9 +260,9 @@ public class GlPreviewRenderer extends GlFrameBufferObjectRenderer implements Su
         }
 
         synchronized (this) {
-            if (videoEncoder != null) {
+            if (encodeRenderHandler != null) {
                 // notify to capturing thread that the camera frame is available.
-                videoEncoder.frameAvailableSoon(texName, STMatrix, MVPMatrix, aspectRatio);
+                encodeRenderHandler.draw(texName, STMatrix, MVPMatrix, aspectRatio);
             }
         }
 
@@ -268,15 +272,15 @@ public class GlPreviewRenderer extends GlFrameBufferObjectRenderer implements Su
         this.cameraResolution = cameraResolution;
     }
 
-    public void setVideoEncoder(final MediaVideoEncoder encoder) {
+    public void setEncodeRenderHandler(final EncodeRenderHandler encoder, final Surface surface) {
         glView.queueEvent(new Runnable() {
             @Override
             public void run() {
                 synchronized (GlPreviewRenderer.this) {
                     if (encoder != null) {
-                        encoder.setEglContext(EGL14.eglGetCurrentContext(), texName);
+                        encoder.setEglContext(EGL14.eglGetCurrentContext(), texName, surface);
                     }
-                    videoEncoder = encoder;
+                    encodeRenderHandler = encoder;
                 }
             }
         });

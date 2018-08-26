@@ -1,13 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion COMPILE_SDK_VERSION as int
     defaultConfig {
+        minSdkVersion COMPILE_MIN_SDK_VERSION as int
+        targetSdkVersion COMPILE_SDK_VERSION as int
+        versionCode VERSION_CODE as int
+        versionName VERSION_NAME
+
         applicationId "com.daasuu.camerarecorder_androidtesttest"
-        minSdkVersion 21
-        targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -25,7 +26,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
 
     implementation project(':camerarecorder')

@@ -34,6 +34,7 @@ public class CameraRecorderBuilder {
     private int cameraWidth = 1280;
     private int cameraHeight = 720;
     private GlFilter glFilter;
+    private String filePath;
 
     public CameraRecorderBuilder(@NonNull Activity activity, @NonNull GLSurfaceView glSurfaceView) {
         this.activity = activity;
@@ -88,6 +89,11 @@ public class CameraRecorderBuilder {
         return this;
     }
 
+    public CameraRecorderBuilder filePath(String filePath) {
+        this.filePath = filePath;
+        return this;
+    }
+
     public CameraRecorder build() {
         if (this.glSurfaceView == null) {
             throw new IllegalArgumentException("glSurfaceView and windowManager, multiVideoEffects is NonNull !!");
@@ -117,7 +123,8 @@ public class CameraRecorderBuilder {
                 cameraManager,
                 isLandscapeDevice,
                 degrees,
-                recordNoFilter
+                recordNoFilter,
+                filePath
         );
 
         cameraRecorder.setFilter(glFilter);
