@@ -226,7 +226,7 @@ public class CameraRecorder {
                 mediaRecorder.setAudioEncodingBitRate(96000);
             }
 
-            mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
+            mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
 
             mediaRecorder.setVideoEncodingBitRate(12000000);
             mediaRecorder.setVideoFrameRate(30);
