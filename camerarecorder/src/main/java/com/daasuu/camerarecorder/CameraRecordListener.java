@@ -10,6 +10,8 @@ public interface CameraRecordListener {
 
     void onRecordComplete();
 
+    void onRecordStart();
+
     void onError(Exception exception);
 
     void onCameraThreadFinish();

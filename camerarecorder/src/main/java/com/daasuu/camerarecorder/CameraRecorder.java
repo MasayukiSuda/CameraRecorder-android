@@ -208,9 +208,12 @@ public class CameraRecorder {
         try {
             mediaRecorder = new MediaRecorder();
 
-            mediaRecorder.setOnInfoListener(null);
-
-            mediaRecorder.setOnErrorListener(null);
+            mediaRecorder.setOnErrorListener(new MediaRecorder.OnErrorListener() {
+                @Override
+                public void onError(MediaRecorder mr, int what, int extra) {
+                    notifyOnError(new Exception("failed media recorder"));
+                }
+            });
 
             mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
             if (!mute) {
@@ -299,6 +302,9 @@ public class CameraRecorder {
             public void run() {
                 try {
                     mediaRecorder.start();
+                    if (cameraRecordListener != null) {
+                        cameraRecordListener.onRecordStart();
+                    }
                 } catch (Exception e) {
                     notifyOnError(e);
                     releaseMediaRecorder();

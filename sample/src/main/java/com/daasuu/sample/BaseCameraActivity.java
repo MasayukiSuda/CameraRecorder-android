@@ -185,6 +185,11 @@ public class BaseCameraActivity extends AppCompatActivity {
                     }
 
                     @Override
+                    public void onRecordStart() {
+
+                    }
+
+                    @Override
                     public void onRecordComplete() {
                         new Handler().post(() -> {
                             exportMp4ToGallery(getApplicationContext(), filepath);
