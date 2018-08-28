@@ -244,6 +244,9 @@ public class CameraRecorder {
                     muxer.prepare();
                     muxer.startRecording();
 
+                    if (cameraRecordListener != null) {
+                        cameraRecordListener.onRecordStart();
+                    }
                 } catch (Exception e) {
                     notifyOnError(e);
                 }
