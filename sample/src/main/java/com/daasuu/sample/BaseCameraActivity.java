@@ -188,6 +188,11 @@ public class BaseCameraActivity extends AppCompatActivity {
                     }
 
                     @Override
+                    public void onRecordStart() {
+
+                    }
+
+                    @Override
                     public void onError(Exception exception) {
                         Log.e("CameraRecorder", exception.toString());
                     }
