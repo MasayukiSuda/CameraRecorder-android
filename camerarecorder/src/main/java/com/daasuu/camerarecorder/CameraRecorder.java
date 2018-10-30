@@ -195,7 +195,9 @@ public class CameraRecorder {
         public void onPrepared(final MediaEncoder encoder) {
             Log.v("TAG", "onPrepared:encoder=" + encoder);
             if (encoder instanceof MediaVideoEncoder) {
-                glPreviewRenderer.setVideoEncoder((MediaVideoEncoder) encoder);
+                if (glPreviewRenderer != null) {
+                    glPreviewRenderer.setVideoEncoder((MediaVideoEncoder) encoder);
+                }
             }
 
         }
@@ -204,7 +206,9 @@ public class CameraRecorder {
         public void onStopped(final MediaEncoder encoder) {
             Log.v("TAG", "onStopped:encoder=" + encoder);
             if (encoder instanceof MediaVideoEncoder) {
-                glPreviewRenderer.setVideoEncoder(null);
+                if (glPreviewRenderer != null) {
+                    glPreviewRenderer.setVideoEncoder(null);
+                }
             }
         }
     };

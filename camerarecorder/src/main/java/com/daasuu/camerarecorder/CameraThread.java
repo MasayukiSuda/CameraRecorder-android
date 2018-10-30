@@ -15,7 +15,6 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
@@ -86,21 +85,21 @@ public class CameraThread extends Thread {
 
     private CameraDevice.StateCallback cameraDeviceCallback = new CameraDevice.StateCallback() {
         @Override
-        public void onOpened(@NonNull CameraDevice camera) {
+        public void onOpened(CameraDevice camera) {
             Log.d(TAG, "cameraDeviceCallback onOpened");
             CameraThread.this.cameraDevice = camera;
             createCaptureSession();
         }
 
         @Override
-        public void onDisconnected(@NonNull CameraDevice camera) {
+        public void onDisconnected(CameraDevice camera) {
             Log.d(TAG, "cameraDeviceCallback onDisconnected");
             camera.close();
             CameraThread.this.cameraDevice = null;
         }
 
         @Override
-        public void onError(@NonNull CameraDevice camera, int error) {
+        public void onError(CameraDevice camera, int error) {
             Log.d(TAG, "cameraDeviceCallback onError");
             camera.close();
             CameraThread.this.cameraDevice = null;
@@ -109,13 +108,13 @@ public class CameraThread extends Thread {
 
     private CameraCaptureSession.StateCallback cameraCaptureSessionCallback = new CameraCaptureSession.StateCallback() {
         @Override
-        public void onConfigured(@NonNull CameraCaptureSession session) {
+        public void onConfigured(CameraCaptureSession session) {
             cameraCaptureSession = session;
             updatePreview();
         }
 
         @Override
-        public void onConfigureFailed(@NonNull CameraCaptureSession session) {
+        public void onConfigureFailed(CameraCaptureSession session) {
             // Toast.makeText(activity, "onConfigureFailed", Toast.LENGTH_LONG).show();
         }
     };

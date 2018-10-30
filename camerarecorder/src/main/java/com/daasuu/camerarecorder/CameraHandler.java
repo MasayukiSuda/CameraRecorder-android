@@ -43,6 +43,7 @@ public class CameraHandler extends Handler {
     void stopPreview(final boolean needWait) {
         synchronized (this) {
             sendEmptyMessage(MSG_PREVIEW_STOP);
+            if (thread == null) return;
             if (needWait && thread.isRunning) {
                 try {
                     if (DEBUG) Log.d(TAG, "wait for terminating of camera thread");
@@ -76,10 +77,14 @@ public class CameraHandler extends Handler {
     public void handleMessage(final Message msg) {
         switch (msg.what) {
             case MSG_PREVIEW_START:
-                thread.startPreview(msg.arg1, msg.arg2);
+                if (thread != null) {
+                    thread.startPreview(msg.arg1, msg.arg2);
+                }
                 break;
             case MSG_PREVIEW_STOP:
-                thread.stopPreview();
+                if (thread != null) {
+                    thread.stopPreview();
+                }
                 synchronized (this) {
                     notifyAll();
                 }
@@ -97,13 +102,19 @@ public class CameraHandler extends Handler {
                 thread = null;
                 break;
             case MSG_MANUAL_FOCUS:
-                thread.changeManualFocusPoint(eventX, eventY, viewWidth, viewHeight);
+                if (thread != null) {
+                    thread.changeManualFocusPoint(eventX, eventY, viewWidth, viewHeight);
+                }
                 break;
             case MSG_SWITCH_FLASH:
-                thread.switchFlashMode();
+                if (thread != null) {
+                    thread.switchFlashMode();
+                }
                 break;
             case MSG_AUTO_FOCUS:
-                thread.changeAutoFocus();
+                if (thread != null) {
+                    thread.changeAutoFocus();
+                }
                 break;
 
             default:

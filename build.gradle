@@ -2,30 +2,29 @@
 
 buildscript {
 
-    repositories {
-        google()
-        jcenter()
-        mavenLocal()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
-
-        classpath 'com.novoda:bintray-release:0.8.1'
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
+  repositories {
+    google()
+    jcenter()
+    mavenLocal()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:3.4.0-alpha01'
+    //classpath 'com.novoda:bintray-release:0.8.1'
+    // NOTE: Do not place your application dependencies here; they belong
+    // in the individual module build.gradle files
+  }
 }
 
 allprojects {
-    repositories {
-        google()
-        jcenter()
-        maven {
-            url "https://maven.google.com"
-        }
+  repositories {
+    google()
+    jcenter()
+    maven {
+      url "https://maven.google.com"
     }
+  }
 }
 
 task clean(type: Delete) {
-    delete rootProject.buildDir
+  delete rootProject.buildDir
 }
