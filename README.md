@@ -8,11 +8,20 @@ Video Recording with Camera2 and apply video filter.<br>
 
 
 ## Gradle
+Step 1. Add the JitPack repository to your build file
 ```groovy
-  dependencies {
-    // jCenter
-    implementation 'com.daasuu:CameraRecorder-android:0.1.0'
-  }
+allprojects {
+	repositories {
+		...
+		maven { url 'https://jitpack.io' }
+	}
+}
+```
+Step 2. Add the dependency
+```groovy
+dependencies {
+	 implementation 'com.github.MasayukiSuda:CameraRecorder-android:v0.1.5'
+}
 ```
 
 ## Usage
