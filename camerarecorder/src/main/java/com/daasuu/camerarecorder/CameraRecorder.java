@@ -39,7 +39,7 @@ public class CameraRecorder {
     private final LensFacing lensFacing;
     private final boolean flipHorizontal;
     private final boolean flipVertical;
-    private final boolean mute;
+    private boolean mute;
     private final CameraManager cameraManager;
     private final boolean isLandscapeDevice;
     private final int degrees;
@@ -163,6 +163,10 @@ public class CameraRecorder {
         if (cameraHandler != null) {
             cameraHandler.switchFlashMode();
         }
+    }
+
+    public void setMute(boolean mute){
+        this.mute = mute;
     }
 
     public void setGestureScale(float scale) {
